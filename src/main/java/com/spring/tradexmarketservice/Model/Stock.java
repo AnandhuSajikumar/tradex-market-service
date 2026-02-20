@@ -22,5 +22,10 @@ public class Stock {
     private String symbol;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal currentPrice;
+    private BigDecimal basePrice;
+
+    public Stock(String symbol, BigDecimal basePrice) {
+        this.symbol = symbol;
+        this.basePrice = basePrice;
+    }
 }
