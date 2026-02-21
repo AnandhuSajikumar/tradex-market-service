@@ -1,9 +1,13 @@
 package com.spring.tradexmarketservice.Service;
 
+import com.spring.tradexmarketservice.DTO.MarketMapper;
+import com.spring.tradexmarketservice.DTO.PriceResponse;
 import com.spring.tradexmarketservice.Repository.StockRepository;
 import com.spring.tradexmarketservice.kafka.MarketPriceEvent;
+import com.spring.tradexmarketservice.kafka.PriceEngine;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.query.ParameterBinding;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -22,6 +26,7 @@ public class MarketService {
     private final KafkaTemplate<String, MarketPriceEvent> kafkaTemplate;
 
     private final Map<String, BigDecimal> latestPrices = new ConcurrentHashMap<>();
+    private final PriceEngine priceEngine;
 
     @PostConstruct
     public void initPrices() {
@@ -59,6 +64,7 @@ public class MarketService {
     }
 
     public BigDecimal getCurrentPrice(String symbol) {
-        return latestPrices.get(symbol);
+        return priceEngine.getCurrentPrice(symbol);
+
     }
 }
