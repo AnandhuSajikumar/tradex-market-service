@@ -7,7 +7,7 @@ import com.spring.tradexmarketservice.kafka.MarketPriceEvent;
 import com.spring.tradexmarketservice.kafka.PriceEngine;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.repository.query.ParameterBinding;
+
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -30,9 +30,7 @@ public class MarketService {
 
     @PostConstruct
     public void initPrices() {
-        stockRepository.findAll().forEach(stock ->
-                latestPrices.put(stock.getSymbol(), stock.getBasePrice())
-        );
+        stockRepository.findAll().forEach(stock -> latestPrices.put(stock.getSymbol(), stock.getBasePrice()));
     }
 
     @Scheduled(fixedRate = 2000)
@@ -45,9 +43,8 @@ public class MarketService {
 
             double drift = (Math.random() - 0.5) * 0.02;
 
-            BigDecimal newPrice =
-                    current.multiply(BigDecimal.valueOf(1 + drift))
-                            .setScale(2, RoundingMode.HALF_UP);
+            BigDecimal newPrice = current.multiply(BigDecimal.valueOf(1 + drift))
+                    .setScale(2, RoundingMode.HALF_UP);
 
             latestPrices.put(symbol, newPrice);
 
@@ -57,9 +54,7 @@ public class MarketService {
                     new MarketPriceEvent(
                             symbol,
                             newPrice,
-                            Instant.now()
-                    )
-            );
+                            Instant.now()));
         }
     }
 
