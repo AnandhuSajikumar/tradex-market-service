@@ -12,6 +12,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
@@ -27,6 +30,7 @@ public class MarketService {
 
     private final Map<String, BigDecimal> latestPrices = new ConcurrentHashMap<>();
     private final PriceEngine priceEngine;
+    private final ObservationRegistry observationRegistry;
 
     @PostConstruct
     public void initPrices() {
@@ -48,13 +52,18 @@ public class MarketService {
 
             latestPrices.put(symbol, newPrice);
 
-            kafkaTemplate.send(
-                    "market-price-topic",
-                    symbol,
-                    new MarketPriceEvent(
-                            symbol,
-                            newPrice,
-                            Instant.now()));
+            Observation.createNotStarted("market.price.publish", observationRegistry)
+                    .contextualName("publishing-price-" + symbol)
+                    .lowCardinalityKeyValue("symbol", symbol)
+                    .observe(() -> {
+                        kafkaTemplate.send(
+                                "market-price-topic",
+                                symbol,
+                                new MarketPriceEvent(
+                                        symbol,
+                                        newPrice,
+                                        Instant.now()));
+                    });
         }
     }
 
