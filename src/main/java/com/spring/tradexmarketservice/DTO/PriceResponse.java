@@ -1,9 +1,11 @@
 package com.spring.tradexmarketservice.DTO;
 
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+@Getter
 @NoArgsConstructor
 public class PriceResponse {
     private String symbol;

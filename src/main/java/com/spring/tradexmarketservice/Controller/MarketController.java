@@ -19,10 +19,16 @@ public class MarketController {
 
     private final MarketService marketService;
 
-
     @GetMapping("/{symbol}")
     public PriceResponse getPrice(@PathVariable String symbol) {
         BigDecimal price = marketService.getCurrentPrice(symbol);
-        return MarketMapper.toResponse(symbol,price);
+        return MarketMapper.toResponse(symbol, price);
+    }
+
+    @GetMapping("/all")
+    public java.util.List<PriceResponse> getAllPrices() {
+        return marketService.getAllPrices().entrySet().stream()
+                .map(entry -> MarketMapper.toResponse(entry.getKey(), entry.getValue()))
+                .toList();
     }
 }

@@ -18,45 +18,44 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class PriceEngine {
 
-    private final StockRepository stockRepository;
-    private final KafkaTemplate<String, MarketPriceEvent> kafkaTemplate;
+        private final StockRepository stockRepository;
+        private final KafkaTemplate<String, MarketPriceEvent> kafkaTemplate;
 
-    private final Map<String, BigDecimal> latestPrices = new ConcurrentHashMap<>();
+        private final Map<String, BigDecimal> latestPrices = new ConcurrentHashMap<>();
 
-    @Scheduled(fixedRate = 2000)
-    public void updatePrices() {
+        @Scheduled(fixedRate = 2000)
+        public void updatePrices() {
 
-        List<Stock> stocks = stockRepository.findAll();
+                List<Stock> stocks = stockRepository.findAll();
 
-        for (Stock stock : stocks) {
+                for (Stock stock : stocks) {
 
-            BigDecimal current =
-                    latestPrices.getOrDefault(
-                            stock.getSymbol(),
-                            stock.getBasePrice()
-                    );
+                        BigDecimal current = latestPrices.getOrDefault(
+                                        stock.getSymbol(),
+                                        stock.getBasePrice());
 
-            double drift = (Math.random() - 0.5) * 0.02;
+                        double drift = (Math.random() - 0.5) * 0.02;
 
-            BigDecimal newPrice =
-                    current.multiply(BigDecimal.valueOf(1 + drift))
-                            .setScale(2, RoundingMode.HALF_UP);
+                        BigDecimal newPrice = current.multiply(BigDecimal.valueOf(1 + drift))
+                                        .setScale(2, RoundingMode.HALF_UP);
 
-            latestPrices.put(stock.getSymbol(), newPrice);
+                        latestPrices.put(stock.getSymbol(), newPrice);
 
-            kafkaTemplate.send(
-                    "market-price-topic",
-                    stock.getSymbol(),
-                    new MarketPriceEvent(
-                            stock.getSymbol(),
-                            newPrice,
-                            Instant.now()
-                    )
-            );
+                        kafkaTemplate.send(
+                                        "market-price-topic",
+                                        stock.getSymbol(),
+                                        new MarketPriceEvent(
+                                                        stock.getSymbol(),
+                                                        newPrice,
+                                                        Instant.now()));
+                }
         }
-    }
 
-    public BigDecimal getCurrentPrice(String symbol) {
-        return latestPrices.get(symbol);
-    }
+        public BigDecimal getCurrentPrice(String symbol) {
+                return latestPrices.get(symbol);
+        }
+
+        public Map<String, BigDecimal> getAllPrices() {
+                return latestPrices;
+        }
 }

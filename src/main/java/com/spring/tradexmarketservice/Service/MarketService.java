@@ -69,6 +69,9 @@ public class MarketService {
 
     public BigDecimal getCurrentPrice(String symbol) {
         return priceEngine.getCurrentPrice(symbol);
+    }
 
+    public Map<String, BigDecimal> getAllPrices() {
+        return priceEngine.getAllPrices();
     }
 }

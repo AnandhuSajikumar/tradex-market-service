@@ -1,6 +1,5 @@
 package com.spring.tradexmarketservice.Model;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
