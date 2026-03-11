@@ -37,7 +37,7 @@ public class MarketService {
     public void initPrices() {
         stockRepository.findAll().forEach(stock -> {
             latestPrices.put(stock.getSymbol(), stock.getBasePrice());
-            symbolToId.put(stock.getSymbol(), stock.getId());
+            symbolToId.put(stock.getSymbol(), stock.getStockId());
         });
     }
 
