@@ -9,12 +9,14 @@ import java.time.Instant;
 @Getter
 @NoArgsConstructor
 public class MarketPriceEvent {
+    Long stockId;
     String symbol;
     BigDecimal price;
     Instant timestamp;
 
 
-    public MarketPriceEvent(String symbol, BigDecimal price, Instant timestamp) {
+    public MarketPriceEvent(Long stockId, String symbol, BigDecimal price, Instant timestamp) {
+        this.stockId = stockId;
         this.symbol = symbol;
         this.price = price;
         this.timestamp = timestamp;

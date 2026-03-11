@@ -29,12 +29,16 @@ public class MarketService {
     private final KafkaTemplate<String, MarketPriceEvent> kafkaTemplate;
 
     private final Map<String, BigDecimal> latestPrices = new ConcurrentHashMap<>();
+    private final Map<String, Long> symbolToId = new ConcurrentHashMap<>();
     private final PriceEngine priceEngine;
     private final ObservationRegistry observationRegistry;
 
     @PostConstruct
     public void initPrices() {
-        stockRepository.findAll().forEach(stock -> latestPrices.put(stock.getSymbol(), stock.getBasePrice()));
+        stockRepository.findAll().forEach(stock -> {
+            latestPrices.put(stock.getSymbol(), stock.getBasePrice());
+            symbolToId.put(stock.getSymbol(), stock.getId());
+        });
     }
 
     @Scheduled(fixedRate = 2000)
@@ -56,10 +60,11 @@ public class MarketService {
                     .contextualName("publishing-price-" + symbol)
                     .lowCardinalityKeyValue("symbol", symbol)
                     .observe(() -> {
-                        kafkaTemplate.send(
+                    kafkaTemplate.send(
                                 "market-price-topic",
                                 symbol,
                                 new MarketPriceEvent(
+                                        symbolToId.get(symbol),
                                         symbol,
                                         newPrice,
                                         Instant.now()));

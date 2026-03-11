@@ -45,6 +45,7 @@ public class PriceEngine {
                                         "market-price-topic",
                                         stock.getSymbol(),
                                         new MarketPriceEvent(
+                                                        stock.getId(),
                                                         stock.getSymbol(),
                                                         newPrice,
                                                         Instant.now()));
